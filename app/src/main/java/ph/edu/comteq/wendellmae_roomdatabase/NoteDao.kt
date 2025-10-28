@@ -71,6 +71,15 @@ interface NoteDao {
     suspend fun getTagById(id: Int): Tag?
 
 
+    // Get all notes that have a specific tag
+    @Transaction
+    @Query("""
+        SELECT * FROM notes 
+        INNER JOIN note_tag_cross_ref ON notes.id = note_tag_cross_ref.note_id
+        WHERE note_tag_cross_ref.tag_id = :tagId
+        ORDER BY updated_at DESC
+    """)
+    fun getNotesWithTag(tagId: Int): Flow<List<Note>>
 
 
 }

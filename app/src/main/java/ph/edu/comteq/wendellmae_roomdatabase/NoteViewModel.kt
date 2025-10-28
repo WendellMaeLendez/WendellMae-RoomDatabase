@@ -19,7 +19,7 @@ class NoteViewModel(application: Application) : AndroidViewModel(application) {
 
     val allNotes: Flow<List<Note>> = _searchQuery.flatMapLatest { query ->
         if (query.isBlank()) {
-            noteDao.getALlNotes()  // Show everything
+            noteDao.getAllNotes()  // Show everything
         } else {
             noteDao.searchNotes(query)
         }
@@ -44,14 +44,14 @@ class NoteViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     // NEW: All notes WITH their tags
-    val allNotesWithTags: Flow<List<NoteWithTags>> = noteDao.getAllNotesWithTags()
+    val allNotesWithTags: Flow<List<NoteWithTags>> = noteDao.getNotesWithTags()
 
     suspend fun getNoteById(id: Int): Note? {
         return noteDao.getNoteById(id)
     }
 
     suspend fun getNoteWithTags(noteId: Int): NoteWithTags? {
-        return noteDao.getNoteWithTags(noteId)
+        return noteDao.getNoteWithTagsById(noteId)
     }
 
     fun insertTag(tag: Tag) = viewModelScope.launch {

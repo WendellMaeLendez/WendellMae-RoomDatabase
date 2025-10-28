@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -71,8 +72,9 @@ class MainActivity : ComponentActivity() {
                                             viewModel.updateSearchQuery(it)},
                                         onSearch = {},
                                         expanded = true,
-                                        onExpandedChange = {
-                                            if (it){
+                                        onExpandedChange = { shouldExpand ->
+                                            if (!shouldExpand){
+//                                                user wants to collapse or exit search
                                                 isSearchActive = false
                                                 searchQuery = ""
                                                 viewModel.clearSearch()
@@ -85,13 +87,13 @@ class MainActivity : ComponentActivity() {
                                                     isSearchActive = false
                                                     searchQuery = ""
                                                     viewModel.clearSearch()
-                                                }
-                                            ) {
+                                                }) {
                                                 Icon(
                                                     Icons.AutoMirrored.Filled.ArrowBack,
-                                                    contentDescription = "Close Search"
+                                                    contentDescription = "Back"
                                                 )
                                             }
+
                                         },
                                         trailingIcon = {
                                             if (searchQuery.isNotEmpty()){
@@ -109,8 +111,8 @@ class MainActivity : ComponentActivity() {
                                                 }
                                             }
                                         }
-
                                     )
+
                                 },
                                 expanded = true,
                                 onExpandedChange = {
@@ -123,16 +125,32 @@ class MainActivity : ComponentActivity() {
 
                                 }
                             ){
-
+                                LazyColumn (
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentPadding = PaddingValues(16.dp)
+                                ){
+                                    if (notes.isEmpty()){
+                                        item{
+                                            Text(
+                                                text = "No notes found",
+                                                modifier = Modifier.padding(16.dp),
+                                                style = MaterialTheme.typography.bodyLarge,
+                                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                                            )
+                                        }
+                                    } else {
+                                        items(notes) { note ->
+                                            NoteCard(note = note)
+                                        }
+                                    }
+                                }
                             }
                         } else {
 //                            normal mode
                             TopAppBar(
                                 title = { Text("Notes") },
                                 actions = {
-                                    IconButton(
-                                        onClick = { /*TODO*/ }
-                                    ) {
+                                    IconButton(onClick = { isSearchActive = true }) {
                                         Icon(Icons.Filled.Search, "Search")
                                     }
                                 }
@@ -140,13 +158,10 @@ class MainActivity : ComponentActivity() {
                         }
                     },
                     floatingActionButton = {
-                        FloatingActionButton(
-                            onClick = { /*TODO*/ }
-                        ) {
-                            Icon(Icons.Filled.Add, "Add Note")
+                        FloatingActionButton(onClick = { /*TODO*/ }) {
+                            Icon(Icons.Filled.Add, "Add note")
                         }
                     }
-
                 ) { innerPadding ->
                     NotesListScreen(
                         viewModel = viewModel,
@@ -159,8 +174,9 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun NotesListScreen(viewModel: NoteViewModel, modifier: Modifier){
-    val notesWithTags by viewModel.allNotes.collectAsState(initial = emptyList())
+fun NotesListScreen(viewModel: NoteViewModel, modifier: Modifier, tags: List<Tag> = emptyList()){
+//    get all notes from viewmodel
+    val notesWithTags by viewModel.allNotesWithTags.collectAsState(initial = emptyList())
 
     LazyColumn (modifier = Modifier.fillMaxSize().padding(8.dp)){
         items(notesWithTags) { note ->
@@ -172,6 +188,7 @@ fun NotesListScreen(viewModel: NoteViewModel, modifier: Modifier){
 @Composable
 fun NoteCard(
     note: Note,
+    tags: List<Tag> = emptyList(),
     modifier: Modifier = Modifier){
     Card (
         modifier = Modifier.fillMaxWidth().padding(8.dp),
@@ -184,19 +201,14 @@ fun NoteCard(
                 Surface(
                     color = MaterialTheme.colorScheme.secondaryContainer,
                     shape = MaterialTheme.shapes.small
-                ) { Text(
-                    text = note.category,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                ) }
-
-
+                ) {
+                    Text(
+                        text = note.category,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                    )
+                }
             }
-            Text(
-                text = DateUtils.formatDate(note.createdAt),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-            )
             Text(
                 text = note.title,
                 fontSize = 20.sp,
@@ -226,6 +238,6 @@ fun NoteCard(
 //@Composable
 //fun GreetingPreview() {
 //    WendellMaeRoomDatabaseTheme {
-//        NotesListScreen()
+//        NotesListScreen("Android")
 //    }
 //}
