@@ -13,6 +13,7 @@ object DateUtils {
 
     private val dateTimeFormat =
         SimpleDateFormat("MM dd, yyyy h:mm a", Locale.getDefault())
+
     fun formatDate(timestamp: Long): String {
         return dateFormat.format(Date(timestamp))
     }

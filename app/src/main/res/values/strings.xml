@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">WendellMae-RoomDatabase</string>
+    <string name="title_activity_note_taking_app">NoteTakingApp</string>
 </resources>
