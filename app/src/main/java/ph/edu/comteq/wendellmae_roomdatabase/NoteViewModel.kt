@@ -24,6 +24,7 @@ class NoteViewModel(application: Application) : AndroidViewModel(application) {
             noteDao.searchNotes(query)
         }
     }
+
     // Call this when user types in search box
     fun updateSearchQuery(query: String) {
         _searchQuery.value = query
